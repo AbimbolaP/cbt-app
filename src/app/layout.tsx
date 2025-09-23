@@ -23,7 +23,9 @@ export default function RootLayout({
       <body
         className={`${raleway.variable} antialiased `}
       >
-         <header className="p-6 bg-blue-600 text-white text-2xl">CBT APP</header>
+         <header className="p-6 bg-blue-600 text-white text-2xl">
+          CBT APP
+        </header>
 
         <main className="p-6 self-center">{children}</main>
 
