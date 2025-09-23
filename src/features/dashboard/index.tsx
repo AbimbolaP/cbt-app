@@ -21,9 +21,13 @@ export const Dashboard = () => {
 
   useEffect(() => {
     fetch("/api/questions")
-    .then((res) =>  res.json())
-    .then((data) => setQuestions(data))
-    .catch((err) => console.error("Failed to fetch questions:", err));
+  .then(async res => {
+    const text = await res.text(); 
+    console.log("Raw response:", text); 
+    return JSON.parse(text);
+  })
+  .then(data => console.log("Parsed JSON:", data))
+  .catch(err => console.error("Failed to fetch questions:", err));
   }, [])
 
   const handleSelect = (option: string) =>{
