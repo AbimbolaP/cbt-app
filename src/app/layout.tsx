@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Raleway } from "next/font/google";
 import "./globals.css";
+import { NextAuthProvider } from "@/providers/session-provider";
 
 const raleway = Raleway({
   variable: "--font-raleway",
@@ -26,8 +27,10 @@ export default function RootLayout({
          <header className="p-6 bg-blue-600 text-white text-2xl">
           CBT APP
         </header>
-
+      <NextAuthProvider>
         <main className="p-6 self-center">{children}</main>
+      </NextAuthProvider>
+        
 
         <footer className="w-full fixed bottom-0 self-center p-4 text-center text-sm text-gray-600 bg-blue-100">
           © 2025 CBT App

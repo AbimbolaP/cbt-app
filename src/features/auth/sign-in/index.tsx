@@ -1,13 +1,32 @@
 'use client'
 
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export const SignIn = () => {
+ 
  const router = useRouter();
  const [email, setEmail] = useState("");
  const [password, setPassword] = useState("");
+ const [error, setError] = useState("");
 
+ const handleSignIn = async() => {
+    setError("");
+    const res = await signIn("credentials", {
+      redirect: false,
+      email,
+      password,
+    });
+
+    if (res?.error) {
+      setError("Invalid email or password");
+      return;
+    }
+
+    // Login successful
+    router.push("/dashboard");
+ }
 
   const buttonDisabled = email ==="" || password ==="";
 
@@ -35,11 +54,12 @@ export const SignIn = () => {
         />
         <button 
           className="w-full  text-white bg-blue-500 rounded-full p-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:" 
-          onClick={() => {router.push('/dashboard')}}
+          onClick={handleSignIn}
           disabled = {buttonDisabled}
           > 
           Sign In
         </button>
+        {error && <div className="text-red-500">{error}</div>}
       </div>
       <div className="text-blue-500 text-left cursor-pointer">Forgot Password?</div>
       <div>
