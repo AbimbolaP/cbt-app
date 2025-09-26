@@ -24,7 +24,7 @@ export default function RootLayout({
       <body
         className={`${raleway.variable} antialiased `}
       >
-         <header className="p-6 bg-blue-600 text-white text-2xl">
+         <header className="p-6 bg-blue-600 text-white text-2xl font-extrabold">
           CBT APP
         </header>
       <NextAuthProvider>

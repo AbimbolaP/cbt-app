@@ -21,7 +21,7 @@ export const Quiz = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(20);
+  const [timeLeft, setTimeLeft] = useState(120);
 
   useEffect(() => {
     fetch("/api/questions")

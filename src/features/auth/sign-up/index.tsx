@@ -75,7 +75,7 @@ export const SignUp = () => {
         />
 
          <select
-            className="w-full border p-4 rounded-full border-dashed border-blue-500 focus:outline-none appearance-none"
+            className="w-full border p-4 rounded-full border-dashed border-blue-500 focus:outline-none appearance-none cursor-pointer"
             value={role}
             onChange={(e) => setRole(e.target.value)}
           >
@@ -96,7 +96,7 @@ export const SignUp = () => {
       </div>
       {error && <div className="text-red-500">{error}</div>}
       <div>
-        Already have an account? <span className="text-blue-500 underline" onClick={() =>router.push('/auth/sign-in')}>Sign In</span>
+        Already have an account? <span className="text-blue-500 underline cursor-pointer" onClick={() =>router.push('/auth/sign-in')}>Sign In</span>
       </div>
      </div> 
     </div>

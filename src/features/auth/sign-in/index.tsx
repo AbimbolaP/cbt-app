@@ -63,7 +63,7 @@ export const SignIn = () => {
       </div>
       <div className="text-blue-500 text-left cursor-pointer">Forgot Password?</div>
       <div>
-        Don&apos;t have an account? <span className="text-blue-500 underline" onClick={() =>router.push('/auth/sign-up')}>Sign up</span>
+        Don&apos;t have an account? <span className="text-blue-500 underline cursor-pointer" onClick={() =>router.push('/auth/sign-up')}>Sign up</span>
       </div>
      </div> 
     </div>
