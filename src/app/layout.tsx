@@ -28,7 +28,7 @@ export default function RootLayout({
           CBT APP
         </header>
       <NextAuthProvider>
-        <main className="p-6 self-center">{children}</main>
+        <main className="self-center">{children}</main>
       </NextAuthProvider>
         
 

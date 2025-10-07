@@ -23,6 +23,20 @@ export const Quiz = () => {
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(120);
 
+  const handleSelect = (option: string) =>{
+    setSelected(option);
+  };
+
+  const handleNext = () =>{
+    if(selected === questions[currentIndex].answer){
+      setScore(score + 1)
+    }
+    setSelected(null);
+    setCurrentIndex(currentIndex + 1);
+  };
+
+  const isFinished = currentIndex >= questions.length || timeLeft === 0;
+
   useEffect(() => {
     fetch("/api/questions")
      .then(async res => {
@@ -56,24 +70,23 @@ export const Quiz = () => {
     return () => clearInterval(timer);
   }, [currentIndex, selected, questions]);
 
-  const handleSelect = (option: string) =>{
-    setSelected(option);
-  };
+ useEffect(() => {
+  if (isFinished) {
+    // Save score to backend
+    fetch("/api/score", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ score }),
+    })
+    .then(res => res.json())
+    .then(data => console.log("Score updated:", data))
+    .catch(err => console.error("Failed to update score:", err));
+  }
+}, [isFinished, score]);
 
-  const handleNext = () =>{
-    if(selected === questions[currentIndex].answer){
-      setScore(score + 1)
-    }
-    setSelected(null);
-    setCurrentIndex(currentIndex + 1);
-  };
-
-  if (questions.length === 0) {
+if (questions.length === 0) {
     return <div> Loading...</div>
   }
-
-  const isFinished = currentIndex >= questions.length || timeLeft === 0;
-
 
   return ( 
     <div className="flex flex-col items-center justify-center  gap-15">
