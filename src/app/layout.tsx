@@ -21,8 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${raleway.variable} antialiased `}
+      <body className={`${raleway.variable} antialiased `}
       >
          <header className="p-6 bg-blue-600 text-white text-2xl font-extrabold">
           CBT APP
