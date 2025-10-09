@@ -1,17 +1,17 @@
-'use client'
+"use client";
 
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 
-export const SignIn = () => {
- 
- const router = useRouter();
- const [email, setEmail] = useState("");
- const [password, setPassword] = useState("");
- const [error, setError] = useState("");
+export default function SignIn() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
- const handleSignIn = async() => {
+  const handleSignIn = async () => {
     setError("");
     const res = await signIn("credentials", {
       redirect: false,
@@ -24,48 +24,121 @@ export const SignIn = () => {
       return;
     }
 
-    // Login successful
     router.push("/dashboard");
- }
+  };
 
-  const buttonDisabled = email ==="" || password ==="";
+  const buttonDisabled = !email || !password;
 
-  return ( 
-    <div className='flex flex-col justify-center items-center gap-20 h-[80vh]'>
-      <div className="text-4xl font-medium text-center">
-        Sign in to take your examination.
-      </div>
-    <div className='flex flex-col justify-center items-center gap-5'>
-      <div className="w-[70vw] md:w-[30vw] flex flex-col justify-center items-center gap-10">
-        <input 
-          className=" w-full border-b border p-4 rounded-full border-dashed border-blue-500 focus:outline-none" 
-          type="text" 
-          placeholder="Email..." 
-          value={email}
-           onChange={(e) => setEmail(e.target.value)}
-        />
-        <input 
-          className=" w-full border p-4 rounded-full border-dashed border-blue-500 focus:outline-none" 
-          type="password" 
-          placeholder="Password..." 
-          value={password}
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 80 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 120,
+        damping: 8,
+        bounce: 0.6,
+      },
+    },
+  };
+
+  return (
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      exit="hidden"
+      variants={containerVariants}
+      className="flex flex-col justify-center items-center gap-20 min-h-[calc(100dvh-7rem)]"
+    >
+      {/* Title */}
+      <motion.h1
+        variants={itemVariants}
+        className="text-4xl font-semibold text-center"
+      >
+        Sign in to take your examination
+      </motion.h1>
+
+      {/* Form Section */}
+      <motion.div
+        variants={containerVariants}
+        className="flex flex-col justify-center items-center gap-5"
+      >
+        <motion.div
+          variants={containerVariants}
+          className="w-[80vw] md:w-[30vw] flex flex-col justify-center items-center gap-8"
+        >
+          <motion.input
+            variants={itemVariants}
+            type="text"
+            placeholder="Email..."
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full border p-4 rounded-full border-dashed border-blue-500 focus:outline-none"
+          />
+
+          <motion.input
+            variants={itemVariants}
+            type="password"
+            placeholder="Password..."
+            value={password}
             onChange={(e) => setPassword(e.target.value)}
+            className="w-full border p-4 rounded-full border-dashed border-blue-500 focus:outline-none"
+          />
 
-        />
-        <button 
-          className="w-full  text-white bg-blue-500 rounded-full p-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:" 
-          onClick={handleSignIn}
-          disabled = {buttonDisabled}
-          > 
-          Sign In
-        </button>
-        {error && <div className="text-red-500">{error}</div>}
-      </div>
-      <div className="text-blue-500 text-left cursor-pointer">Forgot Password?</div>
-      <div>
-        Don&apos;t have an account? <span className="text-blue-500 underline cursor-pointer" onClick={() =>router.push('/auth/sign-up')}>Sign up</span>
-      </div>
-     </div> 
-    </div>
-  );
-}
+          <motion.button
+            variants={itemVariants}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleSignIn}
+            disabled={buttonDisabled}
+            className="w-full text-white bg-blue-500 rounded-full p-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Sign In
+          </motion.button>
+
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                key="error"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ type: "spring", bounce: 0.4 }}
+                className="text-red-500"
+              >
+                {error}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
+        <motion.div
+          variants={itemVariants}
+          className="text-blue-500 text-left cursor-pointer"
+        >
+          Forgot Password?
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          Don&apos;t have an account?{" "}
+          <span
+            className="text-blue-500 underline cursor-pointer"
+            onClick={() => router.push("/auth/sign-up")}
+          >
+            Sign up
+          </span>
+        </motion.div>
+      </motion.div>
+    </motion.div>
+)}
