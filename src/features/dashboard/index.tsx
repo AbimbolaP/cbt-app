@@ -50,7 +50,7 @@ export const Dashboard = () => {
 
   return (
     <motion.div
-      className="flex flex-col items-center justify-center gap-8 md:gap-15 h-[80vh] text-center"
+      className="flex flex-col items-center justify-center gap-8 md:gap-15 min-h-[calc(100dvh-7rem)] text-center"
       variants={containerVariants}
       initial="hidden"
       animate="visible"

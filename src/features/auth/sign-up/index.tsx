@@ -70,7 +70,7 @@ export const SignUp = () => {
       animate="visible"
       exit="hidden"
       variants={containerVariants}
-      className="flex flex-col justify-center items-center gap-20 min-h-[calc(100dvh-7rem)]"
+      className="flex flex-col justify-center items-center gap-20 min-h-[calc(100dvh-7rem)] overflow-scroll"
     >
       {/* Title */}
       <motion.h1
