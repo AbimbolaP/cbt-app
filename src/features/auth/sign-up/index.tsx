@@ -73,7 +73,7 @@ export const SignUp = () => {
       className="flex items-center justify-center min-h-[calc(100dvh-8rem)] bg-cover bg-center bg-no-repeat bg-[url('/images/newsignin.jpg')]"
     >
 
-      <div className="absolute bg-white opacity-60 h-[calc(100dvh-11rem)] md:h-[calc(100dvh-10rem)]  rounded-3xl w-[90vw] md:w-[60vw] left-auto right-auto top-auto bottom-auto"></div> 
+      <div className=" hidden md:block absolute bg-white opacity-60 h-[calc(100dvh-11rem)] md:h-[calc(100dvh-10rem)]  rounded-3xl w-[90vw] md:w-[60vw] left-auto right-auto top-auto bottom-auto"></div> 
 
       <motion.div className="flex flex-col justify-center items-center gap-10 z-1 ">
       {/* Title */}
