@@ -61,19 +61,17 @@ export default function SignIn() {
       animate="visible"
       exit="hidden"
       variants={containerVariants}
-      className="flex items-center justify-start gap-20 min-h-[calc(100dvh-7rem)] bg-gradient-to-br from-blue-100  to-blue-200"
+      className="flex items-center justify-center min-h-[calc(100dvh-8rem)] bg-gradient-to-br from-blue-100  to-blue-200 bg-cover bg-center bg-no-repeat bg-[url('/images/newsignin.jpg')]"
     >
 
-      <motion.div className="hidden md:block top-0 overflow-hidden">
-        <Image src="/images/newsignin.jpg" alt="" width={500} height={200}/>
-      </motion.div>
+       <div className="absolute bg-white opacity-60 h-[calc(100dvh-15rem)] rounded-3xl w-[90vw] md:w-[60vw] left-auto right-auto top-auto bottom-auto"></div> 
 
-      <motion.div className="flex flex-col justify-center items-center gap-20">
+      <motion.div className="flex flex-col justify-center items-center gap-20 z-10">
         {/* Title */}
         
         <motion.h1
           variants={itemVariants}
-          className="text-4xl font-semibold text-center"
+          className="text-3xl md:text-4xl font-semibold text-center"
         >
           Sign in to take your examination
         </motion.h1>
