@@ -23,11 +23,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${raleway.variable} antialiased `}
       >
-         <header className="p-6 bg-blue-600 text-white text-2xl font-extrabold">
+         <header className=" w-full p-6 sticky top-0 bg-blue-600 text-white text-2xl font-extrabold z-1000">
           CBT APP
         </header>
       <NextAuthProvider>
-        <main className="self-center">{children}</main>
+        <main className="self-center mb-12">{children}</main>
       </NextAuthProvider>
         
 
