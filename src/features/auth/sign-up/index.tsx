@@ -70,108 +70,113 @@ export const SignUp = () => {
       animate="visible"
       exit="hidden"
       variants={containerVariants}
-      className="flex flex-col justify-center items-center gap-20 min-h-[calc(100dvh-7rem)] overflow-scroll"
+      className="flex items-center justify-center min-h-[calc(100dvh-8rem)] bg-cover bg-center bg-no-repeat bg-[url('/images/newsignin.jpg')]"
     >
-      {/* Title */}
-      <motion.h1
-        variants={itemVariants}
-        className="text-4xl font-semibold text-center"
-      >
-        Sign up to take your examination
-      </motion.h1>
 
-      {/* Form Section */}
-      <motion.div
-        variants={containerVariants}
-        className="flex flex-col justify-center items-center gap-5"
-      >
+      <div className="absolute bg-white opacity-60 h-[calc(100dvh-11rem)] md:h-[calc(100dvh-10rem)]  rounded-3xl w-[90vw] md:w-[60vw] left-auto right-auto top-auto bottom-auto"></div> 
+
+      <motion.div className="flex flex-col justify-center items-center gap-10 z-1 ">
+      {/* Title */}
+        <motion.h1
+          variants={itemVariants}
+          className="text-3xl md:text-4xl font-semibold text-center"
+        >
+          Sign up to take your examination
+        </motion.h1>
+
+        {/* Form Section */}
         <motion.div
           variants={containerVariants}
-          className="w-[80vw] md:w-[30vw] flex flex-col justify-center items-center gap-8"
+          className="flex flex-col justify-center items-center gap-5"
         >
-          <motion.input
-            variants={itemVariants}
-            type="text"
-            placeholder="First Name..."
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            className="w-full border p-4 rounded-full border-dashed border-blue-500 focus:outline-none"
-          />
-
-          <motion.input
-            variants={itemVariants}
-            type="text"
-            placeholder="Last Name..."
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            className="w-full border p-4 rounded-full border-dashed border-blue-500 focus:outline-none"
-          />
-
-          <motion.input
-            variants={itemVariants}
-            type="text"
-            placeholder="Email..."
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full border p-4 rounded-full border-dashed border-blue-500 focus:outline-none"
-          />
-
-          <motion.input
-            variants={itemVariants}
-            type="password"
-            placeholder="Password..."
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full border p-4 rounded-full border-dashed border-blue-500 focus:outline-none"
-          />
-
-          <motion.select
-            variants={itemVariants}
-            className="w-full border p-4 rounded-full border-dashed border-blue-500 focus:outline-none appearance-none cursor-pointer"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
+          <motion.div
+            variants={containerVariants}
+            className="w-[80vw] md:w-[30vw] flex flex-col justify-center items-center gap-8"
           >
-            <option className="opacity-50" value="select">
-              Select Role...
-            </option>
-            <option value="STUDENT">Student</option>
-            <option value="ADMIN">Admin</option>
-          </motion.select>
+            <motion.input
+              variants={itemVariants}
+              type="text"
+              placeholder="First Name..."
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              className="w-full border p-4 rounded-full border-dashed border-blue-500 focus:outline-none"
+            />
 
-          <motion.button
-            variants={itemVariants}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleSignUp}
-            disabled={buttonDisabled}
-            className="w-full text-white bg-blue-500 rounded-full p-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Sign Up
-          </motion.button>
-        </motion.div>
+            <motion.input
+              variants={itemVariants}
+              type="text"
+              placeholder="Last Name..."
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              className="w-full border p-4 rounded-full border-dashed border-blue-500 focus:outline-none"
+            />
 
-        <AnimatePresence>
-          {error && (
-            <motion.div
-              key="error"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              transition={{ type: "spring", bounce: 0.4 }}
-              className="text-red-500"
+            <motion.input
+              variants={itemVariants}
+              type="text"
+              placeholder="Email..."
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full border p-4 rounded-full border-dashed border-blue-500 focus:outline-none"
+            />
+
+            <motion.input
+              variants={itemVariants}
+              type="password"
+              placeholder="Password..."
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full border p-4 rounded-full border-dashed border-blue-500 focus:outline-none"
+            />
+
+            <motion.select
+              variants={itemVariants}
+              className="w-full border p-4 rounded-full border-dashed border-blue-500 focus:outline-none appearance-none cursor-pointer"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
             >
-              {error}
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <option className="opacity-50" value="select">
+                Select Role...
+              </option>
+              <option value="STUDENT">Student</option>
+              <option value="ADMIN">Admin</option>
+            </motion.select>
 
-        <motion.div variants={itemVariants}>
-          Already have an account?{" "}
-          <span
-            className="text-blue-500 underline cursor-pointer"
-            onClick={() => router.push("/auth/sign-in")}
-          >
-            Sign In
-          </span>
+            <motion.button
+              variants={itemVariants}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleSignUp}
+              disabled={buttonDisabled}
+              className="w-full text-white bg-blue-500 rounded-full p-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Sign Up
+            </motion.button>
+          </motion.div>
+
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                key="error"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ type: "spring", bounce: 0.4 }}
+                className="text-red-500"
+              >
+                {error}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <motion.div variants={itemVariants}>
+            Already have an account?{" "}
+            <span
+              className="text-blue-500 underline cursor-pointer"
+              onClick={() => router.push("/auth/sign-in")}
+            >
+              Sign In
+            </span>
+          </motion.div>
         </motion.div>
       </motion.div>
     </motion.div>

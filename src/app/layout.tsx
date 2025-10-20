@@ -31,7 +31,7 @@ export default function RootLayout({
       </NextAuthProvider>
         
 
-        <footer className="w-full fixed bottom-0 self-center p-4 text-center text-sm text-gray-600 bg-blue-100">
+        <footer className="w-full fixed bottom-0 self-center p-4 text-center text-sm text-gray-600 bg-blue-100 z-100">
           © 2025 CBT App
         </footer>
       </body>

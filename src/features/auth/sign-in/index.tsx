@@ -4,7 +4,6 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import Image from "next/image";
 
 export default function SignIn() {
   const router = useRouter();
@@ -61,7 +60,7 @@ export default function SignIn() {
       animate="visible"
       exit="hidden"
       variants={containerVariants}
-      className="flex items-center justify-center min-h-[calc(100dvh-8rem)] bg-gradient-to-br from-blue-100  to-blue-200 bg-cover bg-center bg-no-repeat bg-[url('/images/newsignin.jpg')]"
+      className="flex  items-center justify-center min-h-[calc(100dvh-8rem)] bg-cover bg-center bg-no-repeat bg-[url('/images/newsignin.jpg')]"
     >
 
        <div className="absolute bg-white opacity-60 h-[calc(100dvh-15rem)] rounded-3xl w-[90vw] md:w-[60vw] left-auto right-auto top-auto bottom-auto"></div> 
