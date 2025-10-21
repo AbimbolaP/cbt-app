@@ -27,3 +27,18 @@ export async function GET() {
 
   return NextResponse.json(users);
 }
+
+export async function DELETE(req: Request, { params }: {params: { id:string }}) {
+      const session = await getServerSession(authOptions);
+
+    if (!session || session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
+
+    await prisma.user.delete({
+      where: { id: parseInt(params.id) },
+    });
+
+    return NextResponse.json({ success: true });
+
+}

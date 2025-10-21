@@ -8,6 +8,8 @@ import {
   RiMenuUnfoldLine,
   RiCloseLine,
 } from "react-icons/ri";
+import { MdOutlineDelete } from "react-icons/md";
+import { ConfirmModal } from "@/components/confirm-card";
 
 interface Question {
   id: number;
@@ -42,8 +44,21 @@ export const AdminDashboard = () => {
     answer: "",
   });
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
   const [message, setMessage] = useState("");
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<{ id:number; name: string } | null>(null);
+  const [userToMakeAdmin, setUserToMakeAdmin] = useState<{ id:number; name: string } | null>(null);
+  const [showConfirmAdmin, setShowConfirmAdmin] = useState(false);
+  const [userToRemoveAdmin, setUserToRemoveAdmin] = useState<{ id:number; name: string } | null>(null);
+  const [showConfirmRemoveAdmin, setShowConfirmRemoveAdmin] = useState(false);
+   const [activeRoleTab, setActiveRoleTab] = useState<"students" | "admins">("students");
+  const [users, setUsers] = useState<User[]>([]);
+
+  const filteredUsers = Array.isArray(users)? 
+  activeRoleTab === "students"
+    ? users.filter((u) => u.role === "STUDENT")
+    : users.filter((u) => u.role === "ADMIN") : [];
+
 
   useEffect(() => {
     if (activeTab === "questions") {
@@ -52,11 +67,24 @@ export const AdminDashboard = () => {
         .then((data) => setQuestions(data));
     }
 
-    if (activeTab === "users") {
-      fetch("/api/admin/users")
-        .then((res) => res.json())
-        .then((data) => setUsers(data));
-    }
+     if (activeTab === "users") {
+    fetch("/api/admin/users")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setUsers(data);
+        } else if (Array.isArray(data.users)) {
+          setUsers(data.users); // if your API wraps in { users: [...] }
+        } else {
+          console.log("Unexpected user data format:", data);
+          setUsers([]);
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching users:", err);
+        setUsers([]);
+      });
+  }
   }, [activeTab]);
 
   const handleChange = (
@@ -102,12 +130,50 @@ export const AdminDashboard = () => {
     }
   };
 
+  const confirmDelete = (userId: number, userName: string) => {
+    setUserToDelete({ id: userId, name: userName});
+    setShowConfirmDelete(true)
+  };
+
+  const deleteUser = async (userId: number, userName: string) => {
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        setUsers((prev) => prev.filter((u) => u.id !== userId));
+        setMessage(`${userName} deleted successfully.`)
+      } else {
+        const data = await res.json();
+        setMessage(data.error || "Failed to delete user.");
+      }
+    } catch (error) {
+      console.error(error);
+      setMessage("An error occurred while deleting the user.");
+    }
+  };
+
+  const confirmAdmin = (userId:number, userName:string) => {
+   if (activeRoleTab ==="students") {
+    setUserToMakeAdmin({id: userId, name: userName});
+    setShowConfirmAdmin(true)
+  } else {
+    setUserToRemoveAdmin({id: userId, name: userName});
+    setShowConfirmRemoveAdmin(true)
+  }
+  };
+
+  const makeAdmin = async() => {};
+
+  const removeAdmin = async() => {}
+
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
 
   return (
     <div className="flex min-h-[calc(100dvh-7rem)] bg-blue-100 overflow-hidden relative">
-      {/* ===== Desktop Sidebar ===== */}
+      {/* DESKTOP SIDE MENU */}
       <AnimatePresence>
         {sidebarOpen ? (
           <motion.div
@@ -166,39 +232,17 @@ export const AdminDashboard = () => {
             <button onClick={toggleSidebar}>
               <RiMenuUnfoldLine size="24" />
             </button>
-            {/* <div className="flex flex-col gap-6 items-center">
-              <button
-                onClick={() => setActiveTab("questions")}
-                className={`hover:text-blue-400 ${
-                  activeTab === "questions" ? "text-blue-300" : ""
-                }`}
-              >
-                Q
-              </button>
-              <button
-                onClick={() => setActiveTab("users")}
-                className={`hover:text-blue-400 ${
-                  activeTab === "users" ? "text-blue-300" : ""
-                }`}
-              >
-                U
-              </button>
-            </div>
-            <button onClick={() => router.push("/quiz")} className="text-blue-300">
-              Quiz
-            </button> */}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ===== Mobile Menu Button ===== */}
+      {/* MOBILE MENU */}
       <div className="absolute top-4 left-4 z-20 md:hidden cursor-pointer">
         <button onClick={toggleMobileMenu}>
           <RiMenuUnfoldLine size="28" className="text-gray-800" />
         </button>
       </div>
 
-      {/* ===== Mobile Full-Screen Menu ===== */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -262,7 +306,7 @@ export const AdminDashboard = () => {
         )}
       </AnimatePresence>
 
-      {/* ===== Main Content ===== */}
+      {/* MAIN CONTENT */}
       <motion.div
         layout
         key={activeTab}
@@ -369,7 +413,34 @@ export const AdminDashboard = () => {
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.4 }}
             >
-              <h2 className="text-2xl font-bold mb-4">Users & Scores</h2>
+              <h2 className="text-2xl font-bold mb-4">User Profiles</h2>
+
+              {/* Role Tabs */}
+              <div className="flex gap-4 mb-4">
+                <button
+                  onClick={() => setActiveRoleTab("students")}
+                     className={`px-4 py-2 rounded-md font-semibold transition-all ${
+                      activeRoleTab === "students"
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    }`}
+                >
+                  STUDENTS
+                </button>
+
+                  <button
+                  onClick={() => setActiveRoleTab("admins")}
+                     className={`px-4 py-2 rounded-md font-semibold transition-all ${
+                      activeRoleTab === "admins"
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    }`}
+                >
+                  ADMINS
+                </button>
+              </div>
+
+
               <div className="overflow-x-auto max-w-full">
                 <table className="min-w-full border-collapse border border-gray-300 text-sm md:text-base shadow">
                   <thead>
@@ -381,15 +452,15 @@ export const AdminDashboard = () => {
                         Email
                       </th>
                       <th className="border border-gray-300 px-2 md:px-4 py-2">
-                        Role
+                        Score
                       </th>
                       <th className="border border-gray-300 px-2 md:px-4 py-2">
-                        Score
+                        Action(s)
                       </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {users.map((u, i) => (
+                    {filteredUsers.map((u, i) => (
                       <motion.tr
                         key={u.id}
                         initial={{ opacity: 0, y: 10 }}
@@ -397,18 +468,40 @@ export const AdminDashboard = () => {
                         transition={{ delay: i * 0.05 }}
                         className="text-center"
                       >
-                        <td className="border border-gray-300 px-2 md:px-4 py-2">
+                        <td className="border border-gray-300 px-2 md:px-4 py-2 ">
                           {u.name}
                         </td>
                         <td className="border border-gray-300 px-2 md:px-4 py-2 break-words">
                           {u.email}
                         </td>
-                        <td className="border border-gray-300 px-2 md:px-4 py-2">
-                          {u.role}
-                        </td>
+                      
                         <td className="border border-gray-300 px-2 md:px-4 py-2">
                           {u.score ?? "—"}
                         </td>
+                       
+
+
+                        <td className="border border-gray-300 px-2 md:px-4 py-2 text-center flex items-center justify-between gap-2">
+
+                          
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.95 }}
+                              className="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600 transition-all"
+                              onClick={() => confirmAdmin(u.id, u.name ?? "User")} // TODO: hook to API
+                            >
+                             {activeRoleTab === "students" ?  "Make Admin" : "Remove Admin" }
+                            </motion.button>
+                          
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => confirmDelete(u.id, u.name ?? "User")}
+                              className=" text-white px-3 py-1 rounded text-xs hover:bg-red-600 cursor-pointer transition-all"
+                            >
+                              <MdOutlineDelete color="red" size={20}/>
+                            </motion.button>
+                      </td>
                       </motion.tr>
                     ))}
                   </tbody>
@@ -418,6 +511,60 @@ export const AdminDashboard = () => {
           )}
         </AnimatePresence>
       </motion.div>
+
+      
+      {/* CONFIRMATION MODALS */}
+
+      {/* CONFIRM DELETE USER */}
+      <AnimatePresence>
+    {showConfirmDelete && userToDelete && (
+      <ConfirmModal
+      show={showConfirmDelete}
+      title="Delete User"
+      message="Are you sure you want to delete"
+      highlight={userToDelete?.name}
+      confirmText="Yes, Delete"
+      cancelText="Cancel"
+      onConfirm={() => deleteUser}
+      onCancel={() => setShowConfirmDelete(false)}
+    />
+    )}
+      </AnimatePresence>
+
+      {/* CONFIRM MAKE AN ADMIN */}
+      <AnimatePresence>
+        {showConfirmAdmin && userToMakeAdmin && (
+        <ConfirmModal
+      show={showConfirmAdmin}
+      title="Make Admin"
+      message="Are you sure you want to give admin priviledges to"
+      highlight={userToMakeAdmin?.name}
+      confirmText="Yes, Make Admin"
+      cancelText="Cancel"
+      onConfirm={() => makeAdmin}
+      onCancel={() => setShowConfirmAdmin(false)}
+    />
+      )}
+
+      {/* CONFIRM DELETE ADMIN */}
+      </AnimatePresence>
+
+      {/* CONFIRM REMOVE AN ADMIN */}
+      <AnimatePresence>
+        {showConfirmRemoveAdmin && userToRemoveAdmin && (
+        <ConfirmModal
+      show={showConfirmRemoveAdmin}
+      title="Remove as Admin"
+      message="Are you sure you want take admin priviledges from"
+      highlight={userToRemoveAdmin?.name}
+      confirmText="Yes, Remove"
+      cancelText="Cancel"
+      onConfirm={() => removeAdmin}
+      onCancel={() => setShowConfirmRemoveAdmin(false)}
+    />
+        )}
+      </AnimatePresence>
+        
     </div>
   );
 };

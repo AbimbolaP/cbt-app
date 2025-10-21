@@ -14,7 +14,6 @@ export const Dashboard = () => {
     router.push("/admin");
   };
 
-  // Parent container animation
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
@@ -26,7 +25,6 @@ export const Dashboard = () => {
     },
   };
 
-  // For headline and text
   const fadeScale: Variants = {
     hidden: { opacity: 0, y: 40, scale: 0.95 },
     visible: {
@@ -37,7 +35,6 @@ export const Dashboard = () => {
     },
   };
 
-  // Button flip animation
   const flipButton: Variants = {
     hidden: { opacity: 0, rotateX: -90 },
     visible: {
