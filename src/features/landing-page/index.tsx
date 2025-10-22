@@ -1,6 +1,6 @@
 'use client';
 
-import { FeatureCard } from "@/components/feature-card";
+import { FeatureCard } from "@/components/cards/feature-card";
 import { motion, Variants } from "framer-motion";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -189,7 +189,7 @@ export const Landing = () => {
                   fill 
                   sizes="(max-width: 768px) 100px, 150px"
                   style={{ objectFit: 'contain' }}
-                  priority={index < 6}
+                  priority={index < 8}
                 />
               </div>
             ))}

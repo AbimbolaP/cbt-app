@@ -4,23 +4,40 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 
 export async function DELETE(
-  _req: Request,
+  req: Request,
   { params }: { params: { id: string } }
 ) {
   const session = await getServerSession(authOptions);
-
-  if (!session || session.user.role !== "ADMIN") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+  if (!session?.user || session.user.role !== "ADMIN") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  try {
-    await prisma.user.delete({
-      where: { id: parseInt(params.id) },
-    });
+  await prisma.user.delete({
+    where: { id: parseInt(params.id) },
+  });
 
-    return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  return NextResponse.json({ success: true });
+}
+
+export async function PUT(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user || session.user.role !== "ADMIN") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const { newRole, name, email } = await req.json();
+
+  const updatedUser = await prisma.user.update({
+    where: { id: parseInt(params.id) },
+    data: {
+      ...(newRole && { role: newRole }),
+      ...(name && { name }),
+      ...(email && { email }),
+    },
+  });
+
+  return NextResponse.json({ success: true, updatedUser });
 }

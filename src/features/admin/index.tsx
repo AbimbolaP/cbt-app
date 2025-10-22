@@ -9,7 +9,9 @@ import {
   RiCloseLine,
 } from "react-icons/ri";
 import { MdOutlineDelete } from "react-icons/md";
-import { ConfirmModal } from "@/components/confirm-card";
+import { ConfirmModal } from "@/components/modals/confirm-modal";
+import { QuestionCard } from "@/components/cards/admin-question-card";
+import { QuestionFormModal, initialQuestionState } from "@/components/modals/admin-question-modal";
 
 interface Question {
   id: number;
@@ -34,23 +36,23 @@ export const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"questions" | "users">("questions");
-  const [form, setForm] = useState<Question>({
-    id: 0,
-    primary: "",
-    option1: "",
-    option2: "",
-    option3: "",
-    option4: "",
-    answer: "",
-  });
+
+  const [showQuestionModal, setShowQuestionModal] =useState(false);
+  const [form, setForm] = useState<Question>(initialQuestionState);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [message, setMessage] = useState("");
-  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [showConfirmDeleteQuestion, setShowConfirmDeleteQuestion] = useState(false);
+  const [questionToDelete, setQuestionToDelete]= useState<{id:number, question: string} | null>(null);
+
+
+  const [showConfirmDeleteUser, setShowConfirmDeleteUser] = useState(false);
   const [userToDelete, setUserToDelete] = useState<{ id:number; name: string } | null>(null);
   const [userToMakeAdmin, setUserToMakeAdmin] = useState<{ id:number; name: string } | null>(null);
   const [showConfirmAdmin, setShowConfirmAdmin] = useState(false);
   const [userToRemoveAdmin, setUserToRemoveAdmin] = useState<{ id:number; name: string } | null>(null);
   const [showConfirmRemoveAdmin, setShowConfirmRemoveAdmin] = useState(false);
+
    const [activeRoleTab, setActiveRoleTab] = useState<"students" | "admins">("students");
   const [users, setUsers] = useState<User[]>([]);
 
@@ -87,6 +89,32 @@ export const AdminDashboard = () => {
   }
   }, [activeTab]);
 
+
+  // Questions Handlers
+
+  const openAddQuestionModal = () => {
+    setForm(initialQuestionState);
+    setIsEditMode(false);
+    setMessage("");
+    setShowQuestionModal(true);
+  }
+
+  const handleEditQuestion =(question: Question) => {
+    setForm(question);
+    setIsEditMode(true);
+    setMessage("");
+    setShowQuestionModal(true);
+  }
+
+  const confirmDeleteQuestion =(id:number, question:string) => {
+    setQuestionToDelete({id, question });
+    setShowConfirmDeleteQuestion(true);
+  }
+
+  const deleteQuestion = async(id: number) => {
+
+  }
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -106,33 +134,42 @@ export const AdminDashboard = () => {
       return;
     }
 
-    const res = await fetch("/api/admin/questions", {
-      method: "POST",
+    const url = isEditMode ? `/api/admin/questions/${form.id}` : "/api/admin/questions";
+    const method = isEditMode ? "PUT" : "POST";
+
+    const res = await fetch(url, {
+      method: method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
     });
 
     const data = await res.json();
-    if (res.ok) {
-      setMessage("Question added successfully!");
-      setForm({
-        id: 0,
-        primary: "",
-        option1: "",
-        option2: "",
-        option3: "",
-        option4: "",
-        answer: "",
-      });
-      setQuestions((prev) => [...prev, data]);
+   if (res.ok) {
+      setMessage(`Question ${isEditMode ? "updated" : "added"} successfully!`);
+      if (isEditMode) {
+        setQuestions((prev) =>
+          prev.map((q) => (q.id === form.id ? data : q))
+        );
+      } else {
+        setQuestions((prev) => [...prev, data]);
+      }
+      
+      setTimeout(() => {
+        setShowQuestionModal(false);
+        setForm(initialQuestionState);
+        setMessage("");
+      }, 1500);
+
     } else {
-      setMessage(data.error || "Failed to add question.");
+      setMessage(data.error || `Failed to ${isEditMode ? "update" : "add"} question.`);
     }
   };
 
-  const confirmDelete = (userId: number, userName: string) => {
+
+  // Users Handlers
+  const confirmDeleteUser = (userId: number, userName: string) => {
     setUserToDelete({ id: userId, name: userName});
-    setShowConfirmDelete(true)
+    setShowConfirmDeleteUser(true)
   };
 
   const deleteUser = async (userId: number, userName: string) => {
@@ -167,6 +204,8 @@ export const AdminDashboard = () => {
   const makeAdmin = async() => {};
 
   const removeAdmin = async() => {}
+
+
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
@@ -325,8 +364,18 @@ export const AdminDashboard = () => {
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.4 }}
             >
-              <h2 className="text-2xl font-bold mb-4">Add Question</h2>
-              <div className="flex flex-col gap-2 max-w-lg">
+              <h2 className="text-2xl font-bold mb-4">Manage Questions</h2>
+
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={openAddQuestionModal}
+                className="bg-blue-600 text-white p-3 rounded-lg font-semibold shadow-md hover:bg-blue-700 transition-all mb-8"
+              >
+                + Add New Question
+              </motion.button>
+
+              {/* <div className="flex flex-col gap-2 max-w-lg">
                 <input
                   name="primary"
                   value={form.primary}
@@ -384,12 +433,10 @@ export const AdminDashboard = () => {
                   Add Question
                 </motion.button>
                 {message && <div className="text-green-600">{message}</div>}
-              </div>
+              </div> */}
 
-              <h2 className="text-2xl font-bold mt-6 mb-2">
-                Existing Questions
-              </h2>
-              <ul className="list-disc ml-6 space-y-1">
+              <h3 className="text-xl font-bold mt-6 mb-4">Existing Questions ({questions.length})</h3>
+              {/* <ul className="list-disc ml-6 space-y-1">
                 {questions.map((q, i) => (
                   <motion.li
                     key={q.id}
@@ -401,7 +448,22 @@ export const AdminDashboard = () => {
                     {q[q.answer as keyof Question]})
                   </motion.li>
                 ))}
-              </ul>
+              </ul> */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {questions.length > 0 ? (
+                  questions.map((q, i) => (
+                    <QuestionCard
+                      key={q.id}
+                      question={q}
+                      index={i}
+                      onEdit={handleEditQuestion}
+                      onDelete={(id, question) => confirmDeleteQuestion(id, question)}
+                    />
+                  ))
+                ):(
+                  <div className="text-gray-500 italic p-4 border rounded-lg bg-white">No questions added yet.</div>
+                )}
+              </div>
             </motion.div>
           )}
 
@@ -496,7 +558,7 @@ export const AdminDashboard = () => {
                             <motion.button
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.95 }}
-                              onClick={() => confirmDelete(u.id, u.name ?? "User")}
+                              onClick={() => confirmDeleteUser(u.id, u.name ?? "User")}
                               className=" text-white px-3 py-1 rounded text-xs hover:bg-red-600 cursor-pointer transition-all"
                             >
                               <MdOutlineDelete color="red" size={20}/>
@@ -511,22 +573,54 @@ export const AdminDashboard = () => {
           )}
         </AnimatePresence>
       </motion.div>
-
       
+      {/* MODALS */}
+
+      {/* QUESTION FORM MODAL */}
+      <AnimatePresence>
+      {showQuestionModal &&<QuestionFormModal
+        show={showQuestionModal}
+        onClose={() => setShowQuestionModal(false)}
+        form={form}
+        handleChange={handleChange}
+        handleSubmit={handleSubmit}
+        message={message}
+        isEdit={isEditMode}
+      />}
+      </AnimatePresence>
+
       {/* CONFIRMATION MODALS */}
+
+      {/* CONFIRM DELETE QUESTION */}
+      <AnimatePresence>
+        {showConfirmDeleteQuestion && questionToDelete && (
+          <ConfirmModal
+            show={showConfirmDeleteQuestion}
+            title="Delete Question"
+            message="Are you sure you want to delete the question:"
+            highlight={questionToDelete.question}
+            confirmText="Yes, Delete"
+            cancelText="Cancel"
+            onConfirm={() => deleteQuestion(questionToDelete.id)}
+            onCancel={() => setShowConfirmDeleteQuestion(false)}
+          />
+        )}
+      </AnimatePresence>
 
       {/* CONFIRM DELETE USER */}
       <AnimatePresence>
-    {showConfirmDelete && userToDelete && (
+    {showConfirmDeleteUser && userToDelete && (
       <ConfirmModal
-      show={showConfirmDelete}
+      show={showConfirmDeleteUser}
       title="Delete User"
       message="Are you sure you want to delete"
       highlight={userToDelete?.name}
       confirmText="Yes, Delete"
       cancelText="Cancel"
-      onConfirm={() => deleteUser}
-      onCancel={() => setShowConfirmDelete(false)}
+      onConfirm={() => {
+        deleteUser(userToDelete.id, userToDelete.name);
+        setShowConfirmDeleteUser(false)}}
+      onCancel={() => setShowConfirmDeleteUser(false)}
     />
     )}
       </AnimatePresence>

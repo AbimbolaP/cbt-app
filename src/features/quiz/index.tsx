@@ -1,6 +1,6 @@
 "use client";
 
-import { QuestionCard } from "@/components/question-card";
+import { QuestionCard } from "@/components/cards/question-card";
 import { formatTime } from "@/helpers/formatTime";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
