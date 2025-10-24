@@ -39,5 +39,5 @@ export async function PUT(
     },
   });
 
-  return NextResponse.json({ success: true, updatedUser });
+  return NextResponse.json({ updatedUser });
 }

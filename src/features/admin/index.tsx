@@ -91,7 +91,6 @@ export const AdminDashboard = () => {
 
 
   // Questions Handlers
-
   const openAddQuestionModal = () => {
     setForm(initialQuestionState);
     setIsEditMode(false);
@@ -99,7 +98,7 @@ export const AdminDashboard = () => {
     setShowQuestionModal(true);
   }
 
-  const handleEditQuestion =(question: Question) => {
+  const handleEditQuestion = (question: Question) => {
     setForm(question);
     setIsEditMode(true);
     setMessage("");
@@ -111,59 +110,107 @@ export const AdminDashboard = () => {
     setShowConfirmDeleteQuestion(true);
   }
 
-  const deleteQuestion = async(id: number) => {
-
-  }
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async () => {
-    if (
-      !form.primary ||
-      !form.option1 ||
-      !form.option2 ||
-      !form.option3 ||
-      !form.option4 ||
-      !form.answer
-    ) {
-      setMessage("All fields are required.");
-      return;
-    }
-
-    const url = isEditMode ? `/api/admin/questions/${form.id}` : "/api/admin/questions";
-    const method = isEditMode ? "PUT" : "POST";
-
-    const res = await fetch(url, {
-      method: method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+  const deleteQuestion = async (id: number) => {
+  try {
+    const res = await fetch(`/api/admin/questions/${id}`, {
+      method: "DELETE",
     });
 
-    const data = await res.json();
-   if (res.ok) {
-      setMessage(`Question ${isEditMode ? "updated" : "added"} successfully!`);
-      if (isEditMode) {
-        setQuestions((prev) =>
-          prev.map((q) => (q.id === form.id ? data : q))
-        );
-      } else {
-        setQuestions((prev) => [...prev, data]);
-      }
-      
-      setTimeout(() => {
-        setShowQuestionModal(false);
-        setForm(initialQuestionState);
-        setMessage("");
-      }, 1500);
-
+    if (res.ok) {
+      setQuestions((prev) => prev.filter((q) => q.id !== id));
+      setMessage("Question deleted successfully!");
     } else {
-      setMessage(data.error || `Failed to ${isEditMode ? "update" : "add"} question.`);
+      const data = await res.json();
+      setMessage(data.error || "Failed to delete question.");
     }
+  } catch (error) {
+    console.error(error);
+    setMessage("Error deleting question.");
+  } finally {
+    setShowConfirmDeleteQuestion(false);
+  }
   };
+
+
+ const editQuestion = async (updatedQuestion: Question) => {
+   try {
+  const res = await fetch(`/api/admin/questions/${updatedQuestion.id}`, {
+     method: "PUT",
+     headers: { "Content-Type": "application/json" },
+     body: JSON.stringify({
+    primary: updatedQuestion.primary,
+    answer: updatedQuestion.answer,
+    option1: updatedQuestion.option1,
+    option2: updatedQuestion.option2,
+    option3: updatedQuestion.option3,
+    option4: updatedQuestion.option4,
+     }),
+  });
+
+  if (res.ok) {
+     const result = await res.json();
+     const updatedData = result.updatedQuestion;
+     
+     setQuestions((prev) =>
+    prev.map((q) => (q.id === updatedData.id ? updatedData : q))
+     );
+     setMessage("Question updated successfully!");
+    setTimeout(() => {
+      setMessage("");
+      setShowQuestionModal(false);
+    }, 1500);
+  } else {
+     const data = await res.json();
+     setMessage(data.error || "Failed to update question.");
+  }
+   } catch (error) {
+  console.error(error);
+  setMessage ("Error updating question.");
+   }
+};
+
+
+   const handleChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+   ) => {
+  setForm({ ...form, [e.target.name]: e.target.value });
+   };
+
+  const handleSubmit = async () => {
+   if (
+  !form.primary ||
+  !form.option1 ||
+  !form.option2 ||
+  !form.option3 ||
+  !form.option4 ||
+  !form.answer
+   ) {
+  setMessage ("All fields are required.");
+  return;
+   }
+
+   if (isEditMode) {
+  await editQuestion(form);
+   } else {
+  const res = await fetch("/api/admin/questions", {
+     method: "POST",
+     headers: { "Content-Type": "application/json" },
+     body: JSON.stringify(form),
+  });
+  const data = await res.json();
+  if (res.ok) {
+     setQuestions((prev) => [...prev, data]);
+    setMessage("Question added successfully!");
+      setTimeout(() => {
+        setMessage("");
+        setShowQuestionModal(false);
+      }, 1500);
+  } else {
+     setMessage(data.error || "Failed to add question.");
+  }
+   }
+};
+
 
 
   // Users Handlers
@@ -188,9 +235,13 @@ export const AdminDashboard = () => {
     } catch (error) {
       console.error(error);
       setMessage("An error occurred while deleting the user.");
-    }
+    } finally {
+    setShowConfirmDeleteUser(false);
+  }
   };
 
+
+  // Role Change Handlers
   const confirmAdmin = (userId:number, userName:string) => {
    if (activeRoleTab ==="students") {
     setUserToMakeAdmin({id: userId, name: userName});
@@ -201,10 +252,61 @@ export const AdminDashboard = () => {
   }
   };
 
-  const makeAdmin = async() => {};
+  const makeAdmin = async () => {
+    if (!userToMakeAdmin) return;
+    try {
+      const res = await fetch(`/api/admin/users/${userToMakeAdmin.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: "ADMIN" }),
+      });
 
-  const removeAdmin = async() => {}
+      if (res.ok) {
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === userToMakeAdmin.id ? { ...u, role: "ADMIN" } : u
+          )
+        );
+        setMessage(`${userToMakeAdmin.name} is now an admin.`);
+      } else {
+        const data = await res.json();
+        setMessage(data.error || "Failed to update role.");
+      }
+    } catch (err) {
+      console.error(err);
+      setMessage("Error updating role.");
+    } finally {
+      setShowConfirmAdmin(false);
+    }
+  };
 
+  const removeAdmin = async() => {
+    if (!userToRemoveAdmin) return;
+    try {
+      const res = await fetch(`/api/admin/users/${userToRemoveAdmin.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: "STUDENT" }),
+      });
+
+      if (res.ok) {
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === userToRemoveAdmin.id ? { ...u, role: "STUDENT" } : u
+          )
+        );
+        setMessage(`${userToRemoveAdmin.name} is no longer an admin.`);
+      } else {
+        const data = await res.json();
+        setMessage(data.error || "Failed to update role.");
+      }
+    } catch (err) {
+      console.error(err);
+      setMessage("Error updating role.");
+    } finally {
+      setShowConfirmRemoveAdmin(false);
+    }
+  }
 
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
@@ -221,7 +323,7 @@ export const AdminDashboard = () => {
             animate={{ x: 0}}
             exit={{ x: "-100%"}}
             transition={{ duration: 0.4, ease: "easeInOut" }}
-            className="hidden md:flex w-[25%] bg-gray-600 text-white flex-col p-4 shadow-lg"
+            className="hidden md:flex w-[25%] bg-blue-100 border-r-1 text-white flex-col p-4 shadow-xl"
           >
             <div className="flex justify-between mb-6 items-center">
               <h1 className="text-xl font-bold truncate">Admin</h1>
@@ -233,7 +335,7 @@ export const AdminDashboard = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               className={`text-left mb-2 p-2 rounded hover:bg-blue-500 cursor-pointer ${
-                activeTab === "questions" ? "bg-gray-700" : ""
+                activeTab === "questions" ? "bg-gray-500" : ""
               }`}
               onClick={() => setActiveTab("questions")}
             >
@@ -243,7 +345,7 @@ export const AdminDashboard = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               className={`text-left mb-2 p-2 rounded hover:bg-blue-500 cursor-pointer ${
-                activeTab === "users" ? "bg-gray-700" : ""
+                activeTab === "users" ? "bg-gray-500" : ""
               }`}
               onClick={() => setActiveTab("users")}
             >
@@ -262,11 +364,11 @@ export const AdminDashboard = () => {
         ) : (
           <motion.div
             key="collapsedSidebar"
-            initial={{ x: "-50%" }}
+            initial={{ x: "50%" }}
             animate={{ x: 0}}
             exit={{ x: "-50%"}}
             transition={{ duration: 0.4, ease: "easeInOut" }}
-            className="hidden md:flex bg-gray-600 text-white flex-col p-4 w-[60px] items-center justify-between shadow-lg"
+            className="hidden md:flex border-r-1 bg-blue-100 text-white flex-col p-4 w-[60px] items-center justify-between shadow-xl"
           >
             <button onClick={toggleSidebar}>
               <RiMenuUnfoldLine size="24" />
@@ -375,80 +477,7 @@ export const AdminDashboard = () => {
                 + Add New Question
               </motion.button>
 
-              {/* <div className="flex flex-col gap-2 max-w-lg">
-                <input
-                  name="primary"
-                  value={form.primary}
-                  onChange={handleChange}
-                  placeholder="Question"
-                  className="border p-2 rounded"
-                />
-                <input
-                  name="option1"
-                  value={form.option1}
-                  onChange={handleChange}
-                  placeholder="Option 1"
-                  className="border p-2 rounded"
-                />
-                <input
-                  name="option2"
-                  value={form.option2}
-                  onChange={handleChange}
-                  placeholder="Option 2"
-                  className="border p-2 rounded"
-                />
-                <input
-                  name="option3"
-                  value={form.option3}
-                  onChange={handleChange}
-                  placeholder="Option 3"
-                  className="border p-2 rounded"
-                />
-                <input
-                  name="option4"
-                  value={form.option4}
-                  onChange={handleChange}
-                  placeholder="Option 4"
-                  className="border p-2 rounded"
-                />
-                <select
-                  name="answer"
-                  value={form.answer}
-                  onChange={handleChange}
-                  className="border p-2 rounded"
-                >
-                  <option value="">Select Correct Answer</option>
-                  <option value="option1">Option 1</option>
-                  <option value="option2">Option 2</option>
-                  <option value="option3">Option 3</option>
-                  <option value="option4">Option 4</option>
-                </select>
-
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleSubmit}
-                  className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 cursor-pointer"
-                >
-                  Add Question
-                </motion.button>
-                {message && <div className="text-green-600">{message}</div>}
-              </div> */}
-
               <h3 className="text-xl font-bold mt-6 mb-4">Existing Questions ({questions.length})</h3>
-              {/* <ul className="list-disc ml-6 space-y-1">
-                {questions.map((q, i) => (
-                  <motion.li
-                    key={q.id}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                  >
-                    <span className="font-semibold">{q.primary}</span> (Answer:{" "}
-                    {q[q.answer as keyof Question]})
-                  </motion.li>
-                ))}
-              </ul> */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {questions.length > 0 ? (
                   questions.map((q, i) => (
@@ -584,7 +613,7 @@ export const AdminDashboard = () => {
         form={form}
         handleChange={handleChange}
         handleSubmit={handleSubmit}
-        message={message}
+        message={ message }
         isEdit={isEditMode}
       />}
       </AnimatePresence>
@@ -617,9 +646,9 @@ export const AdminDashboard = () => {
       highlight={userToDelete?.name}
       confirmText="Yes, Delete"
       cancelText="Cancel"
-      onConfirm={() => {
-        deleteUser(userToDelete.id, userToDelete.name);
-        setShowConfirmDeleteUser(false)}}
+      onConfirm={() => 
+        deleteUser(userToDelete.id, userToDelete.name)
+        }
       onCancel={() => setShowConfirmDeleteUser(false)}
     />
     )}
@@ -635,7 +664,7 @@ export const AdminDashboard = () => {
       highlight={userToMakeAdmin?.name}
       confirmText="Yes, Make Admin"
       cancelText="Cancel"
-      onConfirm={() => makeAdmin}
+      onConfirm={() => makeAdmin()}
       onCancel={() => setShowConfirmAdmin(false)}
     />
       )}
@@ -653,7 +682,7 @@ export const AdminDashboard = () => {
       highlight={userToRemoveAdmin?.name}
       confirmText="Yes, Remove"
       cancelText="Cancel"
-      onConfirm={() => removeAdmin}
+      onConfirm={() => removeAdmin()}
       onCancel={() => setShowConfirmRemoveAdmin(false)}
     />
         )}
