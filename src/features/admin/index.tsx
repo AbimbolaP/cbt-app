@@ -258,8 +258,15 @@ export const AdminDashboard = () => {
       const res = await fetch(`/api/admin/users/${userToMakeAdmin.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role: "ADMIN" }),
+        body: JSON.stringify({ newRole: "ADMIN" }),
       });
+
+    let data = {};
+    try {
+      data = await res.json();
+    } catch {
+      data = {};
+    }
 
       if (res.ok) {
         setUsers((prev) =>
@@ -286,7 +293,7 @@ export const AdminDashboard = () => {
       const res = await fetch(`/api/admin/users/${userToRemoveAdmin.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role: "STUDENT" }),
+        body: JSON.stringify({ newRole: "STUDENT" }),
       });
 
       if (res.ok) {
