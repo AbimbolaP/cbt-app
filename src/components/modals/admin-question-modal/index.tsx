@@ -96,10 +96,10 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
               required
             >
               <option value="">Select Correct Answer</option>
-              <option value="option1">Option 1: {form.option1}</option>
-              <option value="option2">Option 2: {form.option2}</option>
-              <option value="option3">Option 3: {form.option3}</option>
-              <option value="option4">Option 4: {form.option4}</option>
+              <option value="option1">{form.option1}</option>
+              <option value="option2">{form.option2}</option>
+              <option value="option3">{form.option3}</option>
+              <option value="option4">{form.option4}</option>
             </select>
 
             <motion.button

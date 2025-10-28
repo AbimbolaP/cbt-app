@@ -26,10 +26,42 @@ export const Quiz = () => {
 
   const handleSelect = (option: string) => setSelected(option);
 
-  const handleNext = () => {
-    if (selected === questions[currentIndex].answer) setScore(score + 1);
-    setSelected(null);
-    setCurrentIndex(currentIndex + 1);
+const handleNext = () => {
+  const currentQuestion = questions[currentIndex];
+  const correctAnswerText = currentQuestion[currentQuestion.answer as keyof Question]; 
+  console.log("🔍 Selected:", selected);
+  console.log("✅ Correct answer text:", correctAnswerText);
+
+  if (selected === correctAnswerText) {
+    console.log(" Correct!");
+    setScore((prev) => prev + 1);
+  } else {
+    console.log(" Incorrect answer.");
+  }
+
+  setSelected(null);
+  setCurrentIndex(currentIndex + 1);
+};
+
+
+   // ✨ Flip / Unfold Variants
+  const flipVariants: Variants = {
+    hidden: { opacity: 0, rotateY: 90, scale: 0.9 },
+    visible: {
+      opacity: 1,
+      rotateY: 0,
+      scale: 1,
+      transition: {
+        duration: 0.6,
+        ease: [0.45, 0, 0.55, 1], // smooth “ease in-out” feel
+      },
+    },
+    exit: {
+      opacity: 0,
+      rotateY: -90,
+      scale: 0.9,
+      transition: { duration: 0.4, ease: "easeInOut" },
+    },
   };
 
   const isFinished = currentIndex >= questions.length || timeLeft === 0;
@@ -38,7 +70,6 @@ export const Quiz = () => {
     fetch("/api/questions")
       .then(async (res) => {
         const text = await res.text();
-        console.log("Raw response:", text);
         return JSON.parse(text);
       })
       .then((data) => setQuestions(data))
@@ -65,46 +96,56 @@ export const Quiz = () => {
     return () => clearInterval(timer);
   }, [currentIndex, selected, questions]);
 
-  useEffect(() => {
-    if (isFinished) {
-      fetch("/api/score", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ score }),
-      })
-        .then((res) => res.json())
-        .then((data) => console.log("Score updated:", data))
-        .catch((err) => console.error("Failed to update score:", err));
-    }
-  }, [isFinished, score]);
+  // useEffect(() => {
+  //   if (isFinished) {
+  //     fetch("/api/scores", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ score }),
+  //     })
+  //       .then((res) => res.json())
+  //       .then((data) => console.log("Score updated:", data))
+  //       .catch((err) => console.error("Failed to update score:", err));
+  //   }
+  // }, [isFinished, score]);
+
+useEffect(() => {
+  if (isFinished) {
+    const updateScore = async () => {
+      try {
+        const res = await fetch("/api/scores", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ score }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          console.error("Failed to update score:", data.error);
+          return;
+        }
+
+        console.log(" Score updated:", data.user.score);
+        setScore(data.user.score);
+      } catch (err) {
+        console.error(" Error updating score:", err);
+      }
+    };
+
+    updateScore();
+  }
+}, [isFinished]); 
+
 
   if (questions.length === 0) return <div>Loading...</div>;
 
-  // ✨ Flip / Unfold Variants
-  const flipVariants: Variants = {
-    hidden: { opacity: 0, rotateY: 90, scale: 0.9 },
-    visible: {
-      opacity: 1,
-      rotateY: 0,
-      scale: 1,
-      transition: {
-        duration: 0.6,
-        ease: [0.45, 0, 0.55, 1], // smooth “ease in-out” feel
-      },
-    },
-    exit: {
-      opacity: 0,
-      rotateY: -90,
-      scale: 0.9,
-      transition: { duration: 0.4, ease: "easeInOut" },
-    },
-  };
+ 
 
   return (
     <div className="flex flex-col items-center justify-center gap-6">
-      <div className="text-xl font-bold mb-4">
-        Time left: {formatTime(timeLeft)}
-      </div>
+      
+    
 
       <AnimatePresence mode="wait">
         {isFinished ? (
@@ -128,6 +169,10 @@ export const Quiz = () => {
             </button>
           </motion.div>
         ) : (
+          <>
+            <div className="text-xl font-bold mb-4">
+              Time left: {formatTime(timeLeft)}
+            </div>
           <motion.div
             key={questions[currentIndex].id}
             variants={flipVariants}
@@ -156,6 +201,7 @@ export const Quiz = () => {
               Next
             </motion.button>
           </motion.div>
+        </>
         )}
       </AnimatePresence>
     </div>

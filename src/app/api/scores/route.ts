@@ -12,10 +12,24 @@ export async function POST(req: Request) {
 
   const { score } = await req.json();
 
-  const user = await prisma.user.update({
-    where: { email: session.user.email },
-    data: { score },
-  });
+ if (typeof score !== "number") {
+    return NextResponse.json({ error: "Invalid score" }, { status: 400 });
+  }
 
-  return NextResponse.json({ message: "Score updated", user });
-}
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { email: session.user.email },
+      data: { score },
+    });
+
+    return NextResponse.json({
+      message: "Score updated successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Failed to update score:", error);
+    return NextResponse.json(
+      { error: "Failed to update score" },
+      { status: 500 }
+    );
+  }}
