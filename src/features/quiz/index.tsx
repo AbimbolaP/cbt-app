@@ -5,6 +5,7 @@ import { formatTime } from "@/helpers/formatTime";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
+import { FaHourglassHalf } from "react-icons/fa";
 
 interface Question {
   id: number;
@@ -19,6 +20,7 @@ interface Question {
 export const Quiz = () => {
   const router = useRouter();
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [score, setScore] = useState(0);
@@ -33,10 +35,7 @@ const handleNext = () => {
   console.log("✅ Correct answer text:", correctAnswerText);
 
   if (selected === correctAnswerText) {
-    console.log(" Correct!");
     setScore((prev) => prev + 1);
-  } else {
-    console.log(" Incorrect answer.");
   }
 
   setSelected(null);
@@ -53,7 +52,7 @@ const handleNext = () => {
       scale: 1,
       transition: {
         duration: 0.6,
-        ease: [0.45, 0, 0.55, 1], // smooth “ease in-out” feel
+        ease: [0.45, 0, 0.55, 1], 
       },
     },
     exit: {
@@ -66,15 +65,30 @@ const handleNext = () => {
 
   const isFinished = currentIndex >= questions.length || timeLeft === 0;
 
-  useEffect(() => {
-    fetch("/api/questions")
-      .then(async (res) => {
-        const text = await res.text();
-        return JSON.parse(text);
-      })
-      .then((data) => setQuestions(data))
-      .catch((err) => console.error("Failed to fetch questions:", err));
-  }, []);
+ // inside your Quiz component function
+
+useEffect(() => {
+    const fetchQuestions = async () => {
+        setIsLoading(true); 
+
+        try {
+            const response = await fetch("/api/questions");
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const text = await response.text();
+            const data = JSON.parse(text);
+            
+            setQuestions(data);
+        } catch (err) {
+            console.error("Failed to fetch questions:", err);
+        } finally {
+            setIsLoading(false); 
+        }
+    };
+
+    fetchQuestions()
+}, []); 
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -138,14 +152,34 @@ useEffect(() => {
 }, [isFinished]); 
 
 
-  if (questions.length === 0) return <div>Loading...</div>;
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[calc(100dvh-7rem)] text-blue-600 p-8">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+        >
+          <FaHourglassHalf className="text-6xl mb-4" />
+        </motion.div>
+        <h2 className="text-2xl font-semibold mt-4">Loading Exam Questions...</h2>
+        <p className="text-gray-500 mt-2">Please wait while we prepare your test environment.</p>
+      </div>
+    );
+  }
+  
+  if (questions.length === 0) {
+      return (
+        <div className="text-center mt-10 text-red-600">
+          <p className="text-xl font-bold">Error: No questions found.</p>
+          <p className="text-gray-500">Please check the question source or try again later.</p>
+        </div>
+      );
+  }
 
  
 
   return (
     <div className="flex flex-col items-center justify-center gap-6">
-      
-    
 
       <AnimatePresence mode="wait">
         {isFinished ? (
