@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
@@ -28,7 +29,8 @@ export async function GET() {
   return NextResponse.json(users);
 }
 
-export async function DELETE(req: Request, { params }: {params: { id:string }}) {
+export async function DELETE(req: Request, context: any) {
+  const { id } = context.params as {id: string}
       const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== "ADMIN") {
@@ -36,7 +38,7 @@ export async function DELETE(req: Request, { params }: {params: { id:string }}) 
     }
 
     await prisma.user.delete({
-      where: { id: parseInt(params.id) },
+      where: { id: parseInt(id) },
     });
 
     return NextResponse.json({ success: true });

@@ -5,15 +5,16 @@ import { authOptions } from "@/lib/authOptions";
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
-) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  context: any ) {
+  const { id } = context.params as { id: string };
   const session = await getServerSession(authOptions);
   if (!session?.user || session.user.role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   await prisma.question.delete({
-    where: { id: parseInt(params.id) },
+    where: { id: parseInt(id) },
   });
 
   return NextResponse.json({ success: true });
@@ -21,15 +22,16 @@ export async function DELETE(
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   context: any
 ) {
   try{
+    const { id } = context.params as { id: string };
   const session = await getServerSession(authOptions);
   if (!session?.user || session.user.role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
-      const id = parseInt(params.id);
     const body = await req.json();
     const { primary, option1, option2, option3, option4, answer } = body;
 
@@ -38,7 +40,7 @@ export async function PUT(
     }
 
     const updatedQuestion = await prisma.question.update({
-      where: { id },
+      where: { id: parseInt(id) },
       data: {
         primary,
         option1,
