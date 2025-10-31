@@ -12,7 +12,7 @@ function ConfirmAdminContent() {
       {status === "success" && (
         <>
           <h1 className="text-3xl font-bold text-green-600 mb-4">
-            Admin Access Confirmed 🎉
+            Admin Access Confirmed
           </h1>
           <p className="text-gray-700 mb-6">
             You’ve successfully accepted admin privileges on the CBT Platform.
