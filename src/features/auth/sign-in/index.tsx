@@ -63,7 +63,7 @@ export default function SignIn() {
       className="flex  items-center justify-center min-h-[calc(100dvh-8rem)] bg-cover bg-center bg-no-repeat bg-[url('/images/newsignin.jpg')]"
     >
 
-       <div className="absolute bg-white opacity-60 h-[calc(100dvh-15rem)] rounded-3xl w-[90vw] md:w-[60vw] left-auto right-auto top-auto bottom-auto"></div> 
+       <div className="  hidden md:block absolute bg-white opacity-60 h-[calc(100dvh-15rem)] rounded-3xl w-[90vw] md:w-[60vw] left-auto right-auto top-auto bottom-auto"></div> 
 
       <motion.div className="flex flex-col justify-center items-center gap-20 z-10">
         {/* Title */}
@@ -90,7 +90,7 @@ export default function SignIn() {
               placeholder="Email..."
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full border p-4 rounded-full border-dashed border-blue-500 focus:outline-none"
+              className="w-full border-2 md:border p-4 rounded-full border-dashed border-blue-500 focus:outline-none"
             />
 
             <motion.input
@@ -99,7 +99,7 @@ export default function SignIn() {
               placeholder="Password..."
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full border p-4 rounded-full border-dashed border-blue-500 focus:outline-none"
+              className="w-full border-2 md:border p-4 rounded-full border-dashed border-blue-500 focus:outline-none"
             />
 
             <motion.button

@@ -12,6 +12,7 @@ import { MdOutlineDelete } from "react-icons/md";
 import { ConfirmModal } from "@/components/modals/confirm-modal";
 import { QuestionCard } from "@/components/cards/admin-question-card";
 import { QuestionFormModal, initialQuestionState } from "@/components/modals/admin-question-modal";
+import { FaSpinner } from "react-icons/fa";
 
 interface Question {
   id: number;
@@ -36,6 +37,7 @@ export const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"questions" | "users">("questions");
+  const [isLoading, setIsLoading] = useState(false);
 
   const [showQuestionModal, setShowQuestionModal] =useState(false);
   const [form, setForm] = useState<Question>(initialQuestionState);
@@ -64,12 +66,17 @@ export const AdminDashboard = () => {
 
   useEffect(() => {
     if (activeTab === "questions") {
+      setIsLoading(true);
+
       fetch("/api/admin/questions")
         .then((res) => res.json())
         .then((data) => setQuestions(data));
+        setIsLoading(false);
     }
 
      if (activeTab === "users") {
+      setIsLoading(true);
+
     fetch("/api/admin/users")
       .then((res) => res.json())
       .then((data) => {
@@ -86,6 +93,7 @@ export const AdminDashboard = () => {
         console.error("Error fetching users:", err);
         setUsers([]);
       });
+      setIsLoading(false)
   }
   }, [activeTab]);
 
@@ -319,6 +327,20 @@ export const AdminDashboard = () => {
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
 
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[calc(100dvh-7rem)] text-blue-600 p-8">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+        >
+          <FaSpinner className="text-6xl mb-4" />
+        </motion.div>
+        <h2 className="text-2xl font-semibold mt-4">Loading Exam Questions...</h2>
+        <p className="text-gray-500 mt-2">Please wait while we prepare your test environment.</p>
+      </div>
+    );
+  }
   return (
     <div className="flex min-h-[calc(100dvh-7rem)] bg-blue-100 overflow-hidden relative">
       {/* DESKTOP SIDE MENU */}

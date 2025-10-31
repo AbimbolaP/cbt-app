@@ -99,7 +99,7 @@ export const SignUp = () => {
               placeholder="First Name..."
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              className="w-full border p-4 rounded-full border-dashed border-blue-500 focus:outline-none"
+              className="w-full border-2 md:border p-4 rounded-full border-dashed border-blue-500 focus:outline-none"
             />
 
             <motion.input
@@ -108,7 +108,7 @@ export const SignUp = () => {
               placeholder="Last Name..."
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
-              className="w-full border p-4 rounded-full border-dashed border-blue-500 focus:outline-none"
+              className="w-full border-2 md:border p-4 rounded-full border-dashed border-blue-500 focus:outline-none"
             />
 
             <motion.input
@@ -117,7 +117,7 @@ export const SignUp = () => {
               placeholder="Email..."
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full border p-4 rounded-full border-dashed border-blue-500 focus:outline-none"
+              className="w-full border-2 md:border p-4 rounded-full border-dashed border-blue-500 focus:outline-none"
             />
 
             <motion.input
@@ -126,12 +126,12 @@ export const SignUp = () => {
               placeholder="Password..."
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full border p-4 rounded-full border-dashed border-blue-500 focus:outline-none"
+              className="w-full border-2 md:border p-4 rounded-full border-dashed border-blue-500 focus:outline-none"
             />
 
             <motion.select
               variants={itemVariants}
-              className="w-full border p-4 rounded-full border-dashed border-blue-500 focus:outline-none appearance-none cursor-pointer"
+              className="w-full border-2 md:border p-4 rounded-full border-dashed border-blue-500 focus:outline-none appearance-none cursor-pointer"
               value={role}
               onChange={(e) => setRole(e.target.value)}
             >
