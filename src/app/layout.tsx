@@ -27,11 +27,11 @@ export default function RootLayout({
           CBT APP
         </header>
       <NextAuthProvider>
-        <main className="self-center mb-12">{children}</main>
+        <main className="self-center">{children}</main>
       </NextAuthProvider>
         
 
-        <footer className="w-full fixed bottom-0 self-center p-4 text-center text-sm text-gray-600 bg-blue-100 z-100">
+        <footer className="w-full bottom-0 self-center p-4 text-center text-sm text-gray-600 bg-blue-100 z-100">
           © 2025 CBT App
         </footer>
       </body>

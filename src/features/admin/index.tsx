@@ -30,6 +30,7 @@ interface User {
   email: string;
   role: string;
   score: number | null;
+  pendingAdmin: boolean
 }
 
 export const AdminDashboard = () => {
@@ -60,7 +61,7 @@ export const AdminDashboard = () => {
 
   const filteredUsers = Array.isArray(users)? 
   activeRoleTab === "students"
-    ? users.filter((u) => u.role === "STUDENT")
+    ? users.filter((u) => u.role === "STUDENT"||u.pendingAdmin === (true))
     : users.filter((u) => u.role === "ADMIN") : [];
 
 
@@ -279,10 +280,10 @@ export const AdminDashboard = () => {
       if (res.ok) {
         setUsers((prev) =>
           prev.map((u) =>
-            u.id === userToMakeAdmin.id ? { ...u, role: "ADMIN" } : u
+            u.id === userToMakeAdmin.id ? { ...u, pendingAdmin: true } : u
           )
         );
-        setMessage(`${userToMakeAdmin.name} is now an admin.`);
+        setMessage(`${userToMakeAdmin.name} has been sent an admin invite.`);
       } else {
         const data = await res.json();
         setMessage(data.error || "Failed to update role.");
@@ -604,15 +605,17 @@ export const AdminDashboard = () => {
                         <td className="border border-gray-300 px-2 md:px-4 py-2 text-center flex items-center justify-between gap-2">
 
                           
-                            <motion.button
+                           {u.pendingAdmin ? (
+                            <span className="text-yellow-600 font-medium">Pending Admin</span>
+                           ): (<motion.button
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.95 }}
                               className="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600 transition-all"
                               onClick={() => confirmAdmin(u.id, u.name ?? "User")} // TODO: hook to API
                             >
                              {activeRoleTab === "students" ?  "Make Admin" : "Remove Admin" }
-                            </motion.button>
-                          
+                           </motion.button>
+                           )}
                             <motion.button
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.95 }}

@@ -30,6 +30,8 @@ model User {
   email       String @unique
   password    String
   role        Role  @default(STUDENT)
+  pendingAdmin Boolean @default(false)
+  adminConfirmToken String? @unique
   score       Int?
 }
 
