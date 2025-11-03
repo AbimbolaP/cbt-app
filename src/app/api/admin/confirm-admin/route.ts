@@ -58,7 +58,6 @@ export async function GET(req: Request) {
       );
     }
 
-    // Find the user who has this confirmation token and is pending admin
     const user = await prisma.user.findFirst({
       where: {
         adminConfirmToken: token,
@@ -72,7 +71,7 @@ export async function GET(req: Request) {
       );
     }
 
-    // Update the user’s role to ADMIN and clear pending state
+
     await prisma.user.update({
       where: { id: user.id },
       data: {
@@ -82,7 +81,6 @@ export async function GET(req: Request) {
       },
     });
 
-    // ✅ Redirect to a friendly confirmation page
     return NextResponse.redirect(
       new URL("/confirm-admin?status=success", req.url)
     );
