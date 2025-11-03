@@ -18,7 +18,7 @@ function ConfirmAdminContent() {
             You’ve successfully accepted admin privileges on the CBT Platform.
           </p>
           <a
-            href="/login"
+            href="https://cbt-app-gamma.vercel.app/auth/sign-in"
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
             Log In to Continue
