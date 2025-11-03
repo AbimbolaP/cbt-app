@@ -8,7 +8,7 @@ function ConfirmAdminContent() {
   const status = searchParams.get("status");
 
   return (
-    <div className="flex flex-col items-center justify-center bg-gray-100 text-center px-6">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 text-center px-6">
       {status === "success" && (
         <>
           <h1 className="text-3xl font-bold text-green-600 mb-4">
